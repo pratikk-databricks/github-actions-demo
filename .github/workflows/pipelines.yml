@@ -41,6 +41,19 @@ jobs:
       run: |
         nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
  
+    - name: Run a databricks notebook
+      uses: databricks/run-notebook@v0
+      with:
+       local-notebook-path: unit-tests/test_with_percent_run.py
+       databricks-host: $DATABRICKS_HOST
+       databricks-token: $DATABRICKS_TOKEN
+       git-commit: ${{ github.event.pull_request.head.sha }}
+       new-cluster-json: >
+         {
+           "num_workers": 1,
+           "spark_version": "10.4.x-scala2.12",
+           "node_type_id": "Standard_D3_v2"
+         }
   OnRelease:
     if: startsWith(github.ref_name, 'main')
     environment: prod
