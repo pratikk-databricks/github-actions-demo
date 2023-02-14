@@ -9,7 +9,7 @@ on:
       - main
 env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-  DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
+  # DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
   REPO_DIRECTORY: ${{ vars.REPO_DIRECTORY }}
   CLUSTER_ID: ${{ vars.CLUSTER_ID }}
 
@@ -24,6 +24,29 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
+      
+    - name: Generate and save AAD Token
+      run: |
+        echo "DATABRICKS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
+          https://login.microsoftonline.com/9f37a392-f0ae-4280-9796-f1864a10effc/oauth2/v2.0/token \
+          -d 'client_id=d1c98985-cb56-4b14-ba47-f06ad92ce69a' \
+          -d 'grant_type=client_credentials' \
+          -d 'scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d%2F.default' \
+          -d 'client_secret=${{ secrets.AZURE_CREDENTIALS }}' |  jq -r  '.access_token')" >> $GITHUB_ENV
+          
+    - name: Log into Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    # Get an AAD token for the SP using the programmatic ID for Azure Databricks as resourceId.
+    # Then setting the returned accessToken to env.DATABRICKS_TOKEN.
+    - name: Generate and save AAD token
+      id: generate-token
+      run: |
+        echo "DATABRICKS_TOKEN=$(az account get-access-token \
+        --resource=62a912ac-b58e-4c1d-89ea-b2dbfc7358fc \
+        --query accessToken -o tsv)" >> $GITHUB_ENV
 
     - name: Setup Python
       uses: actions/setup-python@v2
