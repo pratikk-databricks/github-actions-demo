@@ -7,6 +7,7 @@ env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
   DEV_DIRECTORY: /Repos/pratik.kewalramani@databricks.com/github-actions-demo/
+  CLUSTER_ID: 0214-013545-noz35upv
   
 jobs:
   build:
@@ -29,3 +30,7 @@ jobs:
     - name: Update databricks repo
       run: |
         databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
+        
+    - name: Run Tests
+      run: |
+        nutter run "$(DEV_DIRECTORY)/unit-tests/" --cluster_id $(CLUSTER_ID) --recursive --junit_report --timeout 500
