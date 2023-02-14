@@ -37,21 +37,22 @@ jobs:
       run: |
         databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
         
-    - name: Run a databricks notebook
-      uses: databricks/run-notebook@v0
-      with:
-       local-notebook-path: unit-tests/test_with_arbitrary_files.py
-       git-commit: ${{ github.event.pull_request.head.sha }}
-       new-cluster-json: >
-         {
-           "num_workers": 1,
-           "spark_version": "10.4.x-scala2.12",
-           "node_type_id": "Standard_D3_v2"
-          }    
     - name: Run Tests
       run: |
         nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
- 
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Release for version ${{ github.ref }}.
+        draft: false
+        prerelease: false
    
   OnRelease:
     if: startsWith(github.ref_name, 'main')
