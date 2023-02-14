@@ -4,7 +4,7 @@ on:
     branches: [dev,release ]
   pull_request:
     types:
-      - opened
+      - closed
     branches:
       - main
 env:
@@ -42,7 +42,7 @@ jobs:
         nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
  
   OnRelease:
-    if: github.ref_name == 'main'
+    if: github.event.pull_request.merged == true and startsWith(github.head_ref, 'main')
     environment: prod
     needs: OnPush
     runs-on: ubuntu-latest
