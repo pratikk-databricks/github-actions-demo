@@ -10,9 +10,12 @@ on:
 env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
-  DEV_DIRECTORY: /Repos/pratik.kewalramani@databricks.com/github-actions-demo
-  CLUSTER_ID: 0214-013545-noz35upv
-  
+  REPO_DIRECTORY: ${{ vars.REPO_DIRECTORY }}
+  CLUSTER_ID: ${{ vars.CLUSTER_ID }}
+
+permissions:
+  checks: write
+  pull-requests: write
 jobs:
   OnPush:
     if: github.ref_name == 'dev'
@@ -35,12 +38,20 @@ jobs:
 
     - name: Update databricks repo
       run: |
-        databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
+        databricks repos update --path $REPO_DIRECTORY --branch "${{github.ref_name}}"
         
     - name: Run Tests
       run: |
-        nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
- 
+        nutter run "$REPO_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
+    
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |                  # Name of the check run which will be created
+          '**/test-*.xml'     
+        
+   
   OnRelease:
     if: startsWith(github.ref_name, 'main')
     environment: prod
@@ -62,15 +73,15 @@ jobs:
 
     - name: Update databricks repo
       run: |
-        databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
+        databricks repos update --path $REPO_DIRECTORY --branch "${{github.ref_name}}"
 
     - name: Run Tests
       run: |
-        nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
+        nutter run "$REPO_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         files: |
-          **/test-*.xml
+          '**/test-*.xml'
