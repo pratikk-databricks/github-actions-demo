@@ -2,7 +2,11 @@ name: CICD
 on:
   push:
     branches: [dev,release ]
-    
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
 env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
