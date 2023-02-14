@@ -44,6 +44,7 @@ jobs:
   OnRelease:
     if: github.ref_name == 'main'
     environment: prod
+    needs: OnPush
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
