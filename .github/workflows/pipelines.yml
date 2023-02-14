@@ -2,14 +2,21 @@ name: CICD
 on:
   push:
     branches: [dev,release ]
-    
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
 env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
-  DEV_DIRECTORY: /Repos/pratik.kewalramani@databricks.com/github-actions-demo/
+  DEV_DIRECTORY: /Repos/pratik.kewalramani@databricks.com/github-actions-demo
+  CLUSTER_ID: 0214-013545-noz35upv
   
 jobs:
-  build:
+  OnPush:
+    if: github.ref_name == 'dev'
+    environment: dev
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
@@ -28,4 +35,43 @@ jobs:
 
     - name: Update databricks repo
       run: |
-        databricks repos update --path $DEV_DIRECTORY --branch "${{GITHUB_REF_NAME}}"
+        databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
+        
+    - name: Run Tests
+      run: |
+        nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
+ 
+  OnRelease:
+    if: github.ref_name == 'main'
+    environment: prod
+    needs: OnPush
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install libraries
+      run: |
+        pip install --upgrade pip nutter
+    - name: install-databricks-cli
+      uses: microsoft/install-databricks-cli@v1.0.0
+
+    - name: Update databricks repo
+      run: |
+        databricks repos update --path $DEV_DIRECTORY --branch "${{github.ref_name}}"
+
+    - name: Run Tests
+      run: |
+        nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          **/test-*.xml
