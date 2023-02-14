@@ -12,15 +12,15 @@ env:
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
   REPO_DIRECTORY: ${{ vars.REPO_DIRECTORY }}
   CLUSTER_ID: ${{ vars.CLUSTER_ID }}
-  
+
+permissions:
+  checks: write
+  pull-requests: write
 jobs:
   OnPush:
     if: github.ref_name == 'dev'
     environment: dev
     runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
@@ -84,4 +84,4 @@ jobs:
       if: always()
       with:
         files: |
-          **/test-*.xml
+          '**/test-*.xml'
