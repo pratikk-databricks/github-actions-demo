@@ -5,6 +5,7 @@ from pyspark.sql import DataFrame, SparkSession
 
 # COMMAND ----------
 
+# generating test data
 def generate_data1(n=1000, name='my_cool_data'):
     df = SparkSession.getActiveSession().range(0, n)
     df.createOrReplaceTempView(name)
