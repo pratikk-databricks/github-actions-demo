@@ -1,7 +1,7 @@
 name: CICD
 on:
   push:
-    branches: [dev,release ]
+    branches: [dev, main]
   pull_request_target:
     types:
       - closed
@@ -42,7 +42,7 @@ jobs:
         nutter run "$DEV_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
  
   OnRelease:
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'main')
+    if: startsWith(github.ref_name, 'main')
     environment: prod
     runs-on: ubuntu-latest
     steps:
