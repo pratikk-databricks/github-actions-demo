@@ -4,7 +4,7 @@ on:
     branches: [dev,release ]
   pull_request:
     types:
-      - closed
+      - opened
     branches:
       - main
 env:
