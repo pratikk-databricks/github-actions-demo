@@ -1,7 +1,7 @@
 name: CICD
 on:
   push:
-    branches: [dev, main]
+    branches: [dev, releases]
   pull_request_target:
     types:
       - closed
@@ -44,6 +44,7 @@ jobs:
   OnRelease:
     if: startsWith(github.ref_name, 'main')
     environment: prod
+    needs: OnPush
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
