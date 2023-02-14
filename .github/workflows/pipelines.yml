@@ -49,7 +49,7 @@ jobs:
       if: always()
       with:
         files: |                  # Name of the check run which will be created
-          *.xml       
+          '**/test-*.xml'     
         
    
   OnRelease:
