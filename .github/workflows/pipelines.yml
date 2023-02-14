@@ -40,7 +40,7 @@ jobs:
     - name: Run a databricks notebook
       uses: databricks/run-notebook@v0
       with:
-       local-notebook-path: unit-tests/test_with_percent_run
+       local-notebook-path: unit-tests/test_with_percent_run.py
        git-commit: ${{ github.event.pull_request.head.sha }}
        new-cluster-json: >
          {
