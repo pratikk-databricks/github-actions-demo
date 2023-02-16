@@ -25,15 +25,6 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
       
-    #- name: Generate and save AAD Token
-    #  run: |
-    #    echo "DATABRICKS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
-    #      https://login.microsoftonline.com/9f37a392-f0ae-4280-9796-f1864a10effc/oauth2/v2.0/token \
-    #      -d 'client_id=d1c98985-cb56-4b14-ba47-f06ad92ce69a' \
-    #      -d 'grant_type=client_credentials' \
-    #      -d 'scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d%2F.default' \
-    #      -d 'client_secret=${{ secrets.AZURE_CREDENTIALS }}' |  jq -r  '.access_token')" >> $GITHUB_ENV
-          
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
@@ -93,4 +84,4 @@ jobs:
       if: always()
       with:
         files: |
-          '**/test-*.xml'
+          '**/junit-reports/test-*.xml'
