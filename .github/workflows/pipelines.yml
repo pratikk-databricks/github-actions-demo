@@ -77,7 +77,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        echo pwd
+        pwd
         nutter run "$REPO_DIRECTORY/unit-tests/" --cluster_id $CLUSTER_ID --recursive --junit_report --timeout 500
 
     - name: Publish Test Results
