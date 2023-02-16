@@ -1,12 +1,13 @@
 name: CICD
 on:
   push:
-    branches: [dev, releases, main]
-  pull_request_target:
-    types:
-      - closed
-    branches:
-      - main
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - images
+      - terraform
+      - .github
+      
 env:
   DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
   DATABRICKS_TOKEN:  ${{ secrets.DATABRICKS_TOKEN }}
@@ -15,7 +16,6 @@ env:
 
 permissions:
   checks: write
-  pull-requests: write
 jobs:
   OnPush:
     if: github.ref_name == 'dev'
