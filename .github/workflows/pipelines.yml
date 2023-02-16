@@ -58,7 +58,7 @@ jobs:
       if: always()
       with:
         files: |                  # Name of the check run which will be created
-          '**/test-*.xml'     
+          '**/junit-reports/test-*.xml'     
         
    
   OnRelease:
